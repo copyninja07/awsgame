@@ -22,6 +22,7 @@ import ModalRupesSelect from "./ModalRupesSelect";
 import styled from "styled-components";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import axios from "axios";
 
 const WinHeader = () => {
   // const [modalShow, setModalShow] = useState(false);
@@ -30,31 +31,53 @@ const WinHeader = () => {
   const [valueRupess, setValueRupess] = useState("");
   const [cardValue, setCardValue] = useState("");
 
+  const [endTimes, setEndTime] = useState();
   const [time, setTime] = useState();
   const [s, setS] = useState();
   const [m, setM] = useState();
+  const [endClock, setEndClock] = useState();
 
-  const showProduct = async () => {
-    const ress = await fetch("http://localhost:4000/showCountdown");
-    const time = await ress.json();
-
-    setTime(time);
+  const getEndTime = async () => {
+    const res = await axios.get("http://localhost:4000/showCountdown");
+    const Time = await res.data;
+    console.log(Time);
+    const x = Time[Time.length - 1].endTime;
+    setEndTime(parseInt(x, 10));
   };
-
+  const postEndDate = async () => {
+    await axios.post("http://localhost:4000/countdown");
+  };
   useEffect(() => {
-    showProduct();
+    getEndTime();
   }, []);
-  console.log(time);
-  function reset() {
-    localStorage.endTime = +new Date();
+
+  const SetTime = () => {
+    localStorage.EndClock = endTimes + 60000;
+    setEndClock(localStorage.EndClock);
+
+    // console.log(endTime + 180000);
+
+    // const sec = parseInt(endCurrentTime);
+
+    // console.log(typeof parseInt(localStorage.getItem("endClock"), 10));
+    // console.log(typeof endCurrentTime);
+    console.log(localStorage.EndClock);
+  };
+  if (!endClock) {
+    SetTime();
+    postEndDate();
   }
 
-  if (!localStorage.endTime) {
-    reset();
-  }
-
+  // if (!endClock) {
+  // const SetEndTime = async () => {
+  //   await axios.post("http://localhost:4000/countdown");
+  // };
+  //   SetEndTime();
+  // }
+  // console.log(typeof localStorage.getItem("endClock"));
   setInterval(function () {
-    var remaining = localStorage.endTime - new Date();
+    var remaining = localStorage.EndClock - new Date();
+    // console.log(remaining);
     if (remaining >= 0) {
       let second = Math.floor(remaining / 1000);
 
@@ -71,8 +94,10 @@ const WinHeader = () => {
       setTime(hDisplay + mDisplay + sDisplay);
       setM(mDisplay);
       setS(sDisplay);
+      // console.log(s);
+      // console.log(typeof s);
     } else {
-      reset();
+      SetTime();
     }
   }, 100);
 
@@ -171,30 +196,38 @@ const WinHeader = () => {
 
           <div style={{ marginLeft: "10px" }}>
             <h6>Period</h6>
-            <h4>20220210208</h4>
+            <h4>{localStorage.getItem("endClock")}</h4>
           </div>
 
           <div style={{ marginLeft: "55px" }}>
-            <h6>Count Down</h6>
-            <h4>02:49</h4>
+            <h6>Count Down </h6>
+            <h4>{time}</h4>
           </div>
         </div>
 
-        <div
-          style={{ display: "flex", padding: "6px", justifyContent: "center" }}
-        >
-          <CardDiv onClick={() => showDiv("A")}>
-            <CardImg src={card2} alt="card1" id="A" />
-          </CardDiv>
+        {s > 30 ? (
+          <div
+            style={{
+              display: "flex",
+              padding: "6px",
+              justifyContent: "center",
+            }}
+          >
+            <CardDiv onClick={() => showDiv("A")}>
+              <CardImg src={card2} alt="card1" id="A" />
+            </CardDiv>
 
-          <CardDiv onClick={() => showDiv("B")}>
-            <CardImg src={card1} alt="card2" id="B" />
-          </CardDiv>
+            <CardDiv onClick={() => showDiv("B")}>
+              <CardImg src={card1} alt="card2" id="B" />
+            </CardDiv>
 
-          <CardDiv onClick={() => showDiv("T")}>
-            <CardImg src={card3} alt="card3" id="T" />
-          </CardDiv>
-        </div>
+            <CardDiv onClick={() => showDiv("T")}>
+              <CardImg src={card3} alt="card3" id="T" />
+            </CardDiv>
+          </div>
+        ) : (
+          ""
+        )}
       </div>
 
       <CoinDiv>
