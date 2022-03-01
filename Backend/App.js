@@ -1,7 +1,9 @@
-var http = require("http");
 const express = require("express");
 const mysql = require("mysql");
 const cors = require("cors");
+const socket = require("socket.io");
+const http = require("http");
+const { isObject } = require("util");
 
 const app = express();
 app.use(express.json());
@@ -230,23 +232,17 @@ app.post("/remove/BankDetails", (req, res) => {
     }
   );
 });
-// var interval = 180000;
 
-// const endTime = +new Date() + interval;
-// console.log(endTime);
 app.post("/countdown", (req, res) => {
-  var timeInterval = 180000;
+  const endTime = +new Date();
+  console.log(typeof endTime);
 
-  const endTime = +new Date() + timeInterval;
-  console.log(endTime, timeInterval);
   db.query(
-    `INSERT INTO counttime (endTime,timeInterval) VALUES (?,?)`,
-    [endTime, timeInterval],
+    `INSERT INTO counttime (endTime) VALUES (?)`,
+    [endTime],
     (err, result) => {
       if (result) {
-        console.log("Countdown");
-        console.log(endTime, timeInterval);
-        // res.status(200).json({ mess: "Successfully countdown" });
+        res.status(200).json({ mess: "Successfully countdown" });
       } else {
         res.status(400).json(err);
       }
